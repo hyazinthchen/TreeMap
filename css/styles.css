@@ -1,0 +1,129 @@
+:root {
+    --light-grey: #D2D5D5;
+	--text-grey: #4B4C4D;
+	--highlight-orange: #DC9F53
+}
+
+.hidden {
+	display: none!important;
+}
+
+html {
+	font-size: 16px;
+}
+
+html, body {
+	height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+	display: flex;
+	flex-direction: column;
+	color: var(--text-grey);
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+.map {
+    height: 100%;
+    position: relative;
+}
+
+figure {
+	margin: 1rem 2rem 0 0;
+}
+
+.logo {
+    height: 4rem;
+}
+
+.logo:hover {
+    cursor: pointer;
+}
+
+.navbar {
+    padding: 0 2rem;
+    border-bottom: 2px solid black;
+}
+
+.navbar-expand-sm .navbar-nav .nav-link {
+	color: var(--text-grey);
+    padding-right: 1rem;
+    padding-left: 1rem;
+}
+
+.navbar-expand-sm .navbar-nav .nav-link:hover, 
+.nav-link.active {
+	color: var(--highlight-orange)!important;
+	font-weight: 500;
+}
+
+.navbar-expand-sm .navbar-nav .nav-link:focus {
+	box-shadow: none;
+}
+
+.container-fluid {
+    height: 100%;
+    position: relative;
+}
+
+.info {
+    min-height: 20%;
+    background: rgba(255,255,255, 0.75);
+    position: absolute;
+	bottom: 0;
+    width: 100%;
+	display: flex;
+	z-index: 2;
+	border-top: 3px solid var(--light-grey);
+    padding: 2rem;
+}
+
+.info .col-4 {
+	border-right: 2px solid var(--light-grey);
+}
+
+.info .col-4:last-child {
+	border-right: none;
+}
+
+h1 {
+    font-size: 1.25rem;
+}
+
+.close-box {
+	background: url("../img/close.png") no-repeat;
+	background-size: contain;
+    height: 1.5rem;
+    position: absolute;
+    right: .5rem;
+    top: .5rem;
+}
+
+#treeStatistics span {
+	display: block;
+}
+
+p {
+	margin: 0;
+}
+
+.legal {
+	background: white;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+	z-index: 2;
+}
+
+.legal .col {
+	padding: 2rem;
+}
