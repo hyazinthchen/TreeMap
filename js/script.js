@@ -1,3 +1,5 @@
+
+
 mapboxgl.accessToken = 'pk.eyJ1IjoiaHlhemludGhjaGVuIiwiYSI6ImNrbm9vYnljNTBjOWkyb253aWxiOWFpM2UifQ.dqJWj4PrzKlmyTzOE24IKg';
 var map = new mapboxgl.Map({
     container: 'map',
@@ -39,6 +41,7 @@ map.on('click', function(e) {
 	
 	//TODO: Wasserbedarf
 	
+	
 	get30DayPrecipitation(e.lngLat.lat, e.lngLat.lng);
 	getForecast(e.lngLat.lat, e.lngLat.lng);
 });
@@ -64,13 +67,12 @@ function hideAllInfo() {
   document.getElementById("legal").classList.add("hidden");
 }
 
-function get30DayPrecipitation(latitude, longitude) {
+var precipitationSums = [];
+
+async function get30DayPrecipitation(latitude, longitude) {
 	let newDate = new Date();
 	let today = new Date(newDate);
-	
-	
 	var dates = [];
-	var precipitationSums = [];
 	
 	for (let i = 0; i < 30; i++) {
 		today.setDate(today.getDate()-1);
@@ -79,14 +81,35 @@ function get30DayPrecipitation(latitude, longitude) {
 		dates.push(date);
 		let url = "https://api.brightsky.dev/weather?lat=" + latitude + "&lon=" + longitude + "&date=" + date;
 		
-		$.getJSON(url, function(data) {
-			let precipitationSum = 0;
-			for (var hour, i = 0; hour = data.weather[i++];) {
-				precipitationSum = precipitationSum + hour.precipitation;
-			}
-			precipitationSums.push(precipitationSum);
-		});
+			await $.getJSON(url, function(data) {
+				let precipitationSum = 0;
+				for (var hour, i = 0; hour = data.weather[i++];) {
+					precipitationSum = precipitationSum + hour.precipitation;
+				}
+				precipitationSums.push(precipitationSum);
+			});
 	}
+	
+	var ctx = document.getElementById('precipitation-chart').getContext('2d');
+
+	var chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: dates,
+        datasets: [{
+            label: 'Tagesniederschlag in mm',
+            data: precipitationSums,
+			backgroundColor: 'rgba(54, 162, 235, 0.8)'
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+	});
 }
 
 function getForecast(latitude, longitude) {
@@ -289,76 +312,67 @@ function displayPieChart() {
 	Plotly.newPlot( piechartDiv, data, layout, config );
 }
 
-
-function getTreesBySpecies() {
-	$.getJSON("https://trees.hyazinthchen.com/data/trees.json", function(data) {
-		var map = new Map();
-		for (var tree, i = 0; tree = data[i++];) {
-			var species = tree.species;
-				if (species && !map.has(species)) {
-					map.set(species, 1);
-				} else if (species && map.has(species)){
-					var count = map.get(species);
-					count++;
-					map.set(species, count);
-				}
-		}
-		var species = [];
-		for (let [key, value] of map) {
-			species.push(key);
-		}
-		return species;
-	});  
-}
-
-function countTreesBySpecies() {
-	$.getJSON("https://trees.hyazinthchen.com/data/trees.json", function(data) {
-		var map = new Map();
-		for (var tree, i = 0; tree = data[i++];) {
-			var species = tree.species;
-				if (species && !map.has(species)) {
-					map.set(species, 1);
-				} else if (species && map.has(species)){
-					var count = map.get(species);
-					count++;
-					map.set(species, count);
-				}
-		}
-		var occurences = [];
-		for (let [key, value] of map) {
-			occurences.push(value);
-		}
-		return occurences;
-	});  
-}
-
-
-function displayBarChart() {
-	var data = [{
-		y: getTreesBySpecies(),
-		x: countTreesBySpecies(),
-		type: 'bar',
-		orientation: 'h',
-		marker: {
-			color: 'rgb(96, 174, 76)'
-		}
-    }];
- 
-	var layout = {
-		title: 'Anzahl Bäume je Art',
-		bargap: 0.25,
-		yaxis: {
-			automargin: true
-		},
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)',
-		width: '100%'
-	};
-  
-	var config = {responsive: true};
+async function displayBarChart() {
+	var speciesArray = [];
+	var occurences = [];
 	
-	barchartDiv = document.getElementById('barchart');
-	Plotly.newPlot( barchartDiv, data, layout, config );
+	// await $.getJSON("https://trees.hyazinthchen.com/data/trees.json", function(data) {
+		// var map = new Map();
+		// for (var tree, i = 0; tree = data[i++];) {
+			// var species = tree.species;
+				// if (species && !map.has(species)) {
+					// map.set(species, 1);
+				// } else if (species && map.has(species)){
+					// var count = map.get(species);
+					// count++;
+					// map.set(species, count);
+				// }
+		// }
+		// for (let [key, value] of map) {
+			// speciesArray.push(key);
+			// occurences.push(value);
+		// }
+	// });
+	
+	//remove this when bug is fixed
+	try {
+	await $.getJSON("https://trees.hyazinthchen.com/data/trees.json", function(data) {
+		console.log('Trees geht.');
+	});
+	} catch (e) {
+		console.log('Trees geht nicht.');
+	}
+	
+	//remove this when bug is fixed
+	try {
+	await $.getJSON("https://api.brightsky.dev/weather?lat=52&lon=7.6&date=2020-04-21", function(data) {
+		console.log('Wetter geht.');
+	});
+	} catch (e) {
+		console.log('Wetter geht nicht.');
+	}
+	
+	
+	var ctx = document.getElementById('specieschart').getContext('2d');
+
+	// var chart = new Chart(ctx, {
+    // type: 'bar',
+    // data: {
+        // labels: speciesArray,
+        // datasets: [{
+            // label: 'Anzahl Bäume je Art',
+            // data: occurences,
+			// backgroundColor: 'rgba(54, 162, 235, 0.8)'
+        // }]
+    // },
+    // options: {
+        // scales: {
+            // y: {
+                // beginAtZero: true
+            // }
+        // }
+    // }
+	// });
 }
 
 function showWeatherStatistics() {
