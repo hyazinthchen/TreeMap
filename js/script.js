@@ -38,6 +38,9 @@ map.on('click', function(e) {
 	document.getElementById("age").innerHTML = age;
 	
 	//TODO: Wasserbedarf
+	
+	get30DayPrecipitation(e.lngLat.lat, e.lngLat.lng);
+	getForecast(e.lngLat.lat, e.lngLat.lng);
 });
 
 
@@ -47,13 +50,6 @@ map.on('mouseenter', 'trees', function (e) {
  
 map.on('mouseleave', 'trees', function () {
 	map.getCanvas().style.cursor = '';
-});
-
-
-$.getJSON('https://api.brightsky.dev/weather?lat=51.05&lon=13.75&date=2021-05-13', function(data) {
-    data.weather.forEach(function(hour) {
-        console.log(hour.timestamp + " , " + hour.precipitation)
-    });
 });
 
 function hideAllInfo() {
@@ -66,6 +62,98 @@ function hideAllInfo() {
   document.getElementById("howToWater").classList.add("hidden");
   document.getElementById("legalNav").classList.remove("active");
   document.getElementById("legal").classList.add("hidden");
+}
+
+function get30DayPrecipitation(latitude, longitude) {
+	let newDate = new Date();
+	let today = new Date(newDate);
+	
+	
+	var dates = [];
+	var precipitationSums = [];
+	
+	for (let i = 0; i < 30; i++) {
+		today.setDate(today.getDate()-1);
+		
+		let date = today.toISOString().slice(0, 10);
+		dates.push(date);
+		let url = "https://api.brightsky.dev/weather?lat=" + latitude + "&lon=" + longitude + "&date=" + date;
+		
+		$.getJSON(url, function(data) {
+			let precipitationSum = 0;
+			for (var hour, i = 0; hour = data.weather[i++];) {
+				precipitationSum = precipitationSum + hour.precipitation;
+			}
+			precipitationSums.push(precipitationSum);
+		});
+	}
+}
+
+function getForecast(latitude, longitude) {
+	let today = new Date();
+	let tomorrow = new Date(today);
+	tomorrow.setDate(tomorrow.getDate()+1);
+	let date = tomorrow.toISOString().slice(0, 10);
+	let url = "https://api.brightsky.dev/weather?lat=" + latitude + "&lon=" + longitude + "&date=" + date;
+
+	const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };	
+	document.getElementById("forecast-date").innerHTML = "für morgen, " + tomorrow.toLocaleDateString('de-DE', options);
+		
+	$.getJSON(url, function(data) {
+		document.getElementById("weather-icon-1").innerHTML = mapWeatherIcons(data.weather[4].icon);
+		document.getElementById("precipitation-1").innerHTML = data.weather[4].precipitation + " mm/h";
+		document.getElementById("weather-icon-2").innerHTML = mapWeatherIcons(data.weather[8].icon);
+		document.getElementById("precipitation-2").innerHTML = data.weather[8].precipitation + " mm/h";
+		document.getElementById("weather-icon-3").innerHTML = mapWeatherIcons(data.weather[12].icon);
+		document.getElementById("precipitation-3").innerHTML = data.weather[12].precipitation + " mm/h";
+		document.getElementById("weather-icon-4").innerHTML = mapWeatherIcons(data.weather[16].icon);
+		document.getElementById("precipitation-4").innerHTML = data.weather[16].precipitation + " mm/h";
+		document.getElementById("weather-icon-5").innerHTML = mapWeatherIcons(data.weather[20].icon);
+		document.getElementById("precipitation-5").innerHTML = data.weather[20].precipitation + " mm/h";
+	});
+}
+
+function mapWeatherIcons(brightSkyIcon){
+	let weatherIconClass;
+	switch (brightSkyIcon) {
+	  case "clear-day":
+		weatherIconClass = "wi-day-sunny";
+		break;
+	  case "clear-night":
+		weatherIconClass = "wi-night-clear";
+		break;
+	  case "partly-cloudy-day":
+		 weatherIconClass = "wi-day-cloudy";
+		break;
+	  case "partly-cloudy-night":
+		weatherIconClass = "wi-night-alt-cloudy";
+		break;
+	  case "cloudy":
+		weatherIconClass = "wi-cloudy";
+		break;
+	  case "fog":
+		weatherIconClass = "wi-fog";
+		break;
+	  case "wind":
+		weatherIconClass = "wi-strong-wind";
+		break;
+	  case "rain":
+		weatherIconClass = "wi-rain";
+		break;
+	  case "sleet":
+		weatherIconClass = "sleet";
+		break;
+	  case "snow":
+		weatherIconClass = "wi-snow";
+		break;
+	  case "hail":
+		weatherIconClass = "wi-hail";
+		break;
+	  case "thunderstorm":
+		weatherIconClass = "wi-thunderstorm";
+		break;
+	}
+	return '<i class="wi ' + weatherIconClass + '"></i>';
 }
 
 function showTreeStatistics() {

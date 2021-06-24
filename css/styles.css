@@ -1,3 +1,13 @@
+@font-face {
+  font-family: 'weathericons';
+  src: url('../font/weathericons-regular-webfont.eot');
+  src: url('../font/weathericons-regular-webfont.eot?#iefix') format('embedded-opentype'),
+       url('../font/weathericons-regular-webfont.woff2') format('woff2'),
+       url('../font/weathericons-regular-webfont.woff') format('woff'),
+       url('../font/weathericons-regular-webfont.ttf')  format('truetype'),
+       url('../font/weathericons-regular-webfont.svg#weathericons') format('svg');
+}
+
 :root {
     --light-grey: #D2D5D5;
 	--text-grey: #4B4C4D;
@@ -113,6 +123,30 @@ h1 {
 
 p {
 	margin: 0;
+}
+
+.forecast {
+	display: flex;
+	margin-top: 1rem;
+}
+
+.forecast-item {
+	display: flex; 
+	flex-direction: column;
+    align-items: center;
+    padding: 0 1rem;
+}
+
+.forecast-item:first-child {
+    padding-left: 0;
+}
+
+.forecast-item span {
+	font-size: 0.8rem;
+}
+
+.forecast-item div {
+	font-size: 1.6rem;
 }
 
 .legal {
