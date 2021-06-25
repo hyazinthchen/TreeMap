@@ -114,25 +114,43 @@ async function get30DayPrecipitation(latitude, longitude) {
 
 function getForecast(latitude, longitude) {
 	let today = new Date();
-	let tomorrow = new Date(today);
-	tomorrow.setDate(tomorrow.getDate()+1);
-	let date = tomorrow.toISOString().slice(0, 10);
-	let url = "https://api.brightsky.dev/weather?lat=" + latitude + "&lon=" + longitude + "&date=" + date;
+	let dateToday = today.toISOString().slice(0, 10);
+	let todayUrl = "https://api.brightsky.dev/weather?lat=" + latitude + "&lon=" + longitude + "&date=" + dateToday;
 
 	const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };	
-	document.getElementById("forecast-date").innerHTML = "für morgen, " + tomorrow.toLocaleDateString('de-DE', options);
+	document.getElementById("forecast-date-1").innerHTML = "für heute, " + today.toLocaleDateString('de-DE', options);
 		
-	$.getJSON(url, function(data) {
-		document.getElementById("weather-icon-1").innerHTML = mapWeatherIcons(data.weather[4].icon);
-		document.getElementById("precipitation-1").innerHTML = data.weather[4].precipitation + " mm/h";
-		document.getElementById("weather-icon-2").innerHTML = mapWeatherIcons(data.weather[8].icon);
-		document.getElementById("precipitation-2").innerHTML = data.weather[8].precipitation + " mm/h";
-		document.getElementById("weather-icon-3").innerHTML = mapWeatherIcons(data.weather[12].icon);
-		document.getElementById("precipitation-3").innerHTML = data.weather[12].precipitation + " mm/h";
-		document.getElementById("weather-icon-4").innerHTML = mapWeatherIcons(data.weather[16].icon);
-		document.getElementById("precipitation-4").innerHTML = data.weather[16].precipitation + " mm/h";
-		document.getElementById("weather-icon-5").innerHTML = mapWeatherIcons(data.weather[20].icon);
-		document.getElementById("precipitation-5").innerHTML = data.weather[20].precipitation + " mm/h";
+	$.getJSON(todayUrl, function(data) {
+		document.getElementById("weather-icon-1-1").innerHTML = mapWeatherIcons(data.weather[4].icon);
+		document.getElementById("precipitation-1-1").innerHTML = data.weather[4].precipitation + " mm/h";
+		document.getElementById("weather-icon-1-2").innerHTML = mapWeatherIcons(data.weather[8].icon);
+		document.getElementById("precipitation-1-2").innerHTML = data.weather[8].precipitation + " mm/h";
+		document.getElementById("weather-icon-1-3").innerHTML = mapWeatherIcons(data.weather[12].icon);
+		document.getElementById("precipitation-1-3").innerHTML = data.weather[12].precipitation + " mm/h";
+		document.getElementById("weather-icon-1-4").innerHTML = mapWeatherIcons(data.weather[16].icon);
+		document.getElementById("precipitation-1-4").innerHTML = data.weather[16].precipitation + " mm/h";
+		document.getElementById("weather-icon-1-5").innerHTML = mapWeatherIcons(data.weather[20].icon);
+		document.getElementById("precipitation-1-5").innerHTML = data.weather[20].precipitation + " mm/h";
+	});
+	
+	let tomorrow = new Date(today);
+	tomorrow.setDate(tomorrow.getDate()+1);
+	let dateTomorrow = tomorrow.toISOString().slice(0, 10);
+	let tomorrowUrl = "https://api.brightsky.dev/weather?lat=" + latitude + "&lon=" + longitude + "&date=" + dateTomorrow;
+
+	document.getElementById("forecast-date-2").innerHTML = "für morgen, " + tomorrow.toLocaleDateString('de-DE', options);
+		
+	$.getJSON(tomorrowUrl, function(data) {
+		document.getElementById("weather-icon-2-1").innerHTML = mapWeatherIcons(data.weather[4].icon);
+		document.getElementById("precipitation-2-1").innerHTML = data.weather[4].precipitation + " mm/h";
+		document.getElementById("weather-icon-2-2").innerHTML = mapWeatherIcons(data.weather[8].icon);
+		document.getElementById("precipitation-2-2").innerHTML = data.weather[8].precipitation + " mm/h";
+		document.getElementById("weather-icon-2-3").innerHTML = mapWeatherIcons(data.weather[12].icon);
+		document.getElementById("precipitation-2-3").innerHTML = data.weather[12].precipitation + " mm/h";
+		document.getElementById("weather-icon-2-4").innerHTML = mapWeatherIcons(data.weather[16].icon);
+		document.getElementById("precipitation-2-4").innerHTML = data.weather[16].precipitation + " mm/h";
+		document.getElementById("weather-icon-2-5").innerHTML = mapWeatherIcons(data.weather[20].icon);
+		document.getElementById("precipitation-2-5").innerHTML = data.weather[20].precipitation + " mm/h";
 	});
 }
 
@@ -271,10 +289,12 @@ function displayOldestTree() {
 	});  
 }
 
-function count() {
-	$.getJSON("https://trees.hyazinthchen.com/data/trees.json", function(data) {
-	var withoutSpecies = 0;
+async function displayPieChart() {
+
 	var withSpecies = 0;
+	var withoutSpecies = 0;
+	
+	await $.getJSON("https://trees.hyazinthchen.com/data/trees.json", function(data) {
 		for (var tree, i = 0; tree = data[i++];) {
 			if(tree.speciesId == 1) {
 				withoutSpecies++;
@@ -282,97 +302,77 @@ function count() {
 				withSpecies++;
 			}
 		}
-	return [withoutSpecies, withSpecies];
 	});  
-}
-
-function displayPieChart() {
-	  var data = [{
-		  values: count(),
-		  labels: ['Art unbekannt', 'Art bekannt'],
-		  textinfo: "label+percent",
-		  textposition: "outside",
-		  type: 'pie',
-			marker: {
-			  colors: ['rgb(220, 159, 83)', 'rgb(96, 174, 76)'],
-			}
-	  }];
-
-	  var layout = {
-		title: 'Angabe über die Baumart',
-		showlegend: false,
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)',
-		width: '100%'
-	  };
-
-	var config = {responsive: true};
 	
-	piechartDiv = document.getElementById('piechart');
-	Plotly.newPlot( piechartDiv, data, layout, config );
+	var ctx = document.getElementById('piechart').getContext('2d');
+	var chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ["Art bekannt", "Art unbekannt"],
+        datasets: [{
+            label: 'Bekanntheit der Art',
+            data: [withSpecies, withoutSpecies],
+			backgroundColor: ['rgba(96, 174, 76, 0.8)',
+							 'rgba(220, 159, 83, 0.8)']
+        }]
+    },
+    options: {
+        plugins: {
+            legend: {
+                position: "right"
+            }
+        },
+		maintainAspectRatio: false,
+    }
+	});
 }
 
 async function displayBarChart() {
 	var speciesArray = [];
 	var occurences = [];
 	
-	// await $.getJSON("https://trees.hyazinthchen.com/data/trees.json", function(data) {
-		// var map = new Map();
-		// for (var tree, i = 0; tree = data[i++];) {
-			// var species = tree.species;
-				// if (species && !map.has(species)) {
-					// map.set(species, 1);
-				// } else if (species && map.has(species)){
-					// var count = map.get(species);
-					// count++;
-					// map.set(species, count);
-				// }
-		// }
-		// for (let [key, value] of map) {
-			// speciesArray.push(key);
-			// occurences.push(value);
-		// }
-	// });
-	
-	//remove this when bug is fixed
-	try {
 	await $.getJSON("https://trees.hyazinthchen.com/data/trees.json", function(data) {
-		console.log('Trees geht.');
+		var map = new Map();
+		for (var tree, i = 0; tree = data[i++];) {
+			var species = tree.species;
+				if (species && !map.has(species)) {
+					map.set(species, 1);
+				} else if (species && map.has(species)){
+					var count = map.get(species);
+					count++;
+					map.set(species, count);
+				}
+		}
+		var sortedMap = new Map([...map.entries()].sort((a, b) => b[1] - a[1]));
+		arrayTmp = Array.from(sortedMap).slice(0, 10),
+		slicedMap = new Map(arrayTmp);
+		for (let [key, value] of slicedMap) {
+			speciesArray.push(key);
+			occurences.push(value);
+		}
 	});
-	} catch (e) {
-		console.log('Trees geht nicht.');
-	}
-	
-	//remove this when bug is fixed
-	try {
-	await $.getJSON("https://api.brightsky.dev/weather?lat=52&lon=7.6&date=2020-04-21", function(data) {
-		console.log('Wetter geht.');
-	});
-	} catch (e) {
-		console.log('Wetter geht nicht.');
-	}
-	
 	
 	var ctx = document.getElementById('specieschart').getContext('2d');
 
-	// var chart = new Chart(ctx, {
-    // type: 'bar',
-    // data: {
-        // labels: speciesArray,
-        // datasets: [{
-            // label: 'Anzahl Bäume je Art',
-            // data: occurences,
-			// backgroundColor: 'rgba(54, 162, 235, 0.8)'
-        // }]
-    // },
-    // options: {
-        // scales: {
-            // y: {
-                // beginAtZero: true
-            // }
-        // }
-    // }
-	// });
+	var chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: speciesArray,
+        datasets: [{
+            label: 'Anzahl Bäume je Art',
+            data: occurences,
+			backgroundColor: 'rgba(96, 174, 76, 0.8)'
+        }]
+    },
+    options: {
+		indexAxis: 'y',
+        scales: {
+            x: {
+                beginAtZero: true
+            }
+        }
+    }
+	});
 }
 
 function showWeatherStatistics() {

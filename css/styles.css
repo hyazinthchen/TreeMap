@@ -130,11 +130,16 @@ p {
 	margin-top: 1rem;
 }
 
+.forecast:first-of-type {
+	margin-bottom: 2rem;
+}
+
 .forecast-item {
 	display: flex; 
 	flex-direction: column;
     align-items: center;
     padding: 0 1rem;
+    min-width: 6rem;
 }
 
 .forecast-item:first-child {
@@ -147,6 +152,23 @@ p {
 
 .forecast-item div {
 	font-size: 1.6rem;
+}
+
+#howToWater {
+	flex-direction: column;
+}
+
+#howToWater p {
+	margin-bottom: .2rem;
+}
+
+#howToWater a {
+	color: var(--highlight-orange);
+	margin-bottom: .5rem;
+}
+
+#howToWater a:hover {
+	color: var(--highlight-orange);
 }
 
 .legal {
