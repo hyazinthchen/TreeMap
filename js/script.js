@@ -39,13 +39,9 @@ map.on('click', function(e) {
     }
 	document.getElementById("age").innerHTML = age;
 	
-	//TODO: Wasserbedarf
-	
-	
 	get30DayPrecipitation(e.lngLat.lat, e.lngLat.lng);
 	getForecast(e.lngLat.lat, e.lngLat.lng);
 });
-
 
 map.on('mouseenter', 'trees', function (e) {
 	map.getCanvas().style.cursor = 'pointer';
@@ -67,12 +63,11 @@ function hideAllInfo() {
   document.getElementById("legal").classList.add("hidden");
 }
 
-var precipitationSums = [];
-
 async function get30DayPrecipitation(latitude, longitude) {
 	let newDate = new Date();
 	let today = new Date(newDate);
 	var dates = [];
+	var precipitationSums = [];
 	
 	for (let i = 0; i < 30; i++) {
 		today.setDate(today.getDate()-1);
@@ -89,6 +84,9 @@ async function get30DayPrecipitation(latitude, longitude) {
 				precipitationSums.push(precipitationSum);
 			});
 	}
+	
+	dates.reverse();
+	precipitationSums.reverse();
 	
 	var ctx = document.getElementById('precipitation-chart').getContext('2d');
 
@@ -197,6 +195,131 @@ function mapWeatherIcons(brightSkyIcon){
 	return '<i class="wi ' + weatherIconClass + '"></i>';
 }
 
+async function displayCurrentYearWeather() {
+	let newDate = new Date();
+	let today = new Date(newDate);
+	var dates = [];
+	var precipitationSums = [];
+	var temperatureAverages = [];
+	document.getElementById('current-year').innerHTML = today.getFullYear();
+	
+	for (let i = 0; i < 30; i++) {
+		today.setDate(today.getDate()-1);
+		
+		let date = today.toISOString().slice(0, 10);
+		dates.push(date);
+		let url = "https://api.brightsky.dev/weather?lat=" + 51.05 + "&lon=" + 13.75 + "&date=" + date;
+		
+			await $.getJSON(url, function(data) {
+				let precipitationSum = 0;
+				let temperatureAverage = 0;
+				for (var hour, i = 0; hour = data.weather[i++];) {
+					precipitationSum = precipitationSum + hour.precipitation;
+					temperatureAverage = temperatureAverage + hour.temperature;
+				}
+				precipitationSums.push(precipitationSum);
+				temperatureAverages.push(temperatureAverage/25);
+			});
+	}
+	dates.reverse();
+	precipitationSums.reverse();
+	temperatureAverages.reverse();
+	
+	var ctx = document.getElementById('weather-current-year').getContext('2d');
+
+	var chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: dates,
+        datasets: [{
+            label: 'Gesamttagesniederschlag in mm',
+            data: precipitationSums,
+			backgroundColor: 'rgba(54, 162, 235, 0.8)',
+			stack: 'combined',
+			type: 'bar'
+			},
+			{
+            label: 'Tagesdurchschnittstemperatur in °C',
+            data: temperatureAverages,
+			backgroundColor: 'rgba(220, 159, 83, 0.8)',
+			stack: 'combined'
+			
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+				stacked: true
+			  }
+        }
+    }
+	});
+}
+
+
+async function displayFormerYearWeather() {
+	let newDate = new Date();
+	let today = new Date(newDate);
+	today.setFullYear(today.getFullYear()-1);
+	var dates = [];
+	var precipitationSums = [];
+	var temperatureAverages = [];
+	document.getElementById('year-before').innerHTML = today.getFullYear();
+	
+	for (let i = 0; i < 30; i++) {
+		today.setDate(today.getDate()-1);
+		
+		let date = today.toISOString().slice(0, 10);
+		dates.push(date);
+		let url = "https://api.brightsky.dev/weather?lat=" + 51.05 + "&lon=" + 13.75 + "&date=" + date;
+		
+			await $.getJSON(url, function(data) {
+				let precipitationSum = 0;
+				let temperatureAverage = 0;
+				for (var hour, i = 0; hour = data.weather[i++];) {
+					precipitationSum = precipitationSum + hour.precipitation;
+					temperatureAverage = temperatureAverage + hour.temperature;
+				}
+				precipitationSums.push(precipitationSum);
+				temperatureAverages.push(temperatureAverage/25);
+			});
+	}
+	
+	dates.reverse();
+	precipitationSums.reverse();
+	temperatureAverages.reverse();
+	
+	var ctx = document.getElementById('weather-year-before').getContext('2d');
+
+	var chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: dates,
+        datasets: [{
+            label: 'Gesamttagesniederschlag in mm',
+            data: precipitationSums,
+			backgroundColor: 'rgba(54, 162, 235, 0.8)',
+			stack: 'combined',
+			type: 'bar'
+			},
+			{
+            label: 'Tagesdurchschnittstemperatur in °C',
+            data: temperatureAverages,
+			backgroundColor: 'rgba(220, 159, 83, 0.8)',
+			stack: 'combined'
+			
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+				stacked: true
+			  }
+        }
+    }
+	});
+}
+
 function showTreeStatistics() {
   hideAllInfo();
  
@@ -212,7 +335,6 @@ function showTreeStatistics() {
   displayPieChart();
   displayBarChart();
 }
-
 
 function displayTotalTreeCount() {
 	$.getJSON("https://trees.hyazinthchen.com/data/trees.json", function(data) {
@@ -321,8 +443,7 @@ async function displayPieChart() {
             legend: {
                 position: "right"
             }
-        },
-		maintainAspectRatio: false,
+        }
     }
 	});
 }
@@ -378,6 +499,8 @@ async function displayBarChart() {
 function showWeatherStatistics() {
   hideAllInfo();
   
+  displayCurrentYearWeather();
+  displayFormerYearWeather();
   document.getElementById("weatherStatistics").classList.remove("hidden");
   document.getElementById("weatherStatisticsNav").classList.add("active");
 }
