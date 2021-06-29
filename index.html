@@ -81,7 +81,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-4">
+				<div class="col-4" id="precipitation-chart-container">
 					<h1>Niederschlag der letzten 30 Tage</h1>
 					<canvas id="precipitation-chart">
 					</canvas>
@@ -213,11 +213,11 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-4 pieChart">
+				<div class="col-4 pieChart" id="piechart-container">
 					<h2>Bekanntheit der Art aller Bäume</h1>
 						<canvas id="piechart">
 				</div>
-				<div class="col-4">
+				<div class="col-4" id="specieschart-container">
 					<h2>die 10 häufigsten Arten</h1>
 					<canvas id="specieschart">
 				</div>
@@ -225,12 +225,12 @@
 			
 			<div class="row info hidden" id="weatherStatistics">
 				<button type="button" class="btn close-box" onclick="hideAllInfo()"></button>
-					<div class="col-6">
+					<div class="col-6" id="weather-year-before-container">
 						<h2 id="year-before"></h1>
 						<canvas id="weather-year-before">
 						</canvas>
 					</div>
-					<div class="col-6">
+					<div class="col-6" id="weather-current-year-container">
 						<h2 id="current-year"></h1>
 						<canvas id="weather-current-year">
 						</canvas>

@@ -29,13 +29,13 @@ map.on('click', function(e) {
 	
     var circumference = "unbekannt";
     if (feature.properties.circumference != 0) {
-        species = feature.properties.circumference;
+        circumference = feature.properties.circumference;
     }
 	document.getElementById("circumference").innerHTML = circumference;
 	
 	var age = "unbekannt";
     if (feature.properties.age != 0) {
-        species = feature.properties.age;
+        age = feature.properties.age;
     }
 	document.getElementById("age").innerHTML = age;
 	
@@ -87,6 +87,9 @@ async function get30DayPrecipitation(latitude, longitude) {
 	
 	dates.reverse();
 	precipitationSums.reverse();
+	
+	await $('#precipitation-chart').remove();
+	await $('#precipitation-chart-container').append('<canvas id="precipitation-chart"><canvas>');
 	
 	var ctx = document.getElementById('precipitation-chart').getContext('2d');
 
@@ -224,7 +227,11 @@ async function displayCurrentYearWeather() {
 	dates.reverse();
 	precipitationSums.reverse();
 	temperatureAverages.reverse();
+
 	
+	await $('#weather-current-year').remove();
+	await $('#weather-current-year-container').append('<canvas id="weather-current-year"><canvas>');
+  
 	var ctx = document.getElementById('weather-current-year').getContext('2d');
 
 	var chart = new Chart(ctx, {
@@ -288,6 +295,9 @@ async function displayFormerYearWeather() {
 	dates.reverse();
 	precipitationSums.reverse();
 	temperatureAverages.reverse();
+	
+	await $('#weather-year-before').remove();
+	await $('#weather-year-before-container').append('<canvas id="weather-year-before"><canvas>');
 	
 	var ctx = document.getElementById('weather-year-before').getContext('2d');
 
@@ -426,7 +436,11 @@ async function displayPieChart() {
 		}
 	});  
 	
+	await $('#piechart').remove();
+	await $('#piechart-container').append('<canvas id="piechart"><canvas>');
+	
 	var ctx = document.getElementById('piechart').getContext('2d');
+	
 	var chart = new Chart(ctx, {
     type: 'doughnut',
     data: {
@@ -472,6 +486,9 @@ async function displayBarChart() {
 			occurences.push(value);
 		}
 	});
+	
+	await $('#specieschart').remove();
+	await $('#specieschart-container').append('<canvas id="specieschart"><canvas>');
 	
 	var ctx = document.getElementById('specieschart').getContext('2d');
 
